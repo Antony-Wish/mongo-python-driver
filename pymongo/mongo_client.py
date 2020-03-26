@@ -38,6 +38,8 @@ import datetime
 import random
 import socket
 import struct
+import os
+import sys
 import threading
 import time
 import warnings
@@ -689,6 +691,7 @@ class MongoClient(common.BaseObject):
         start = time.time()
         try:
             sock_info.sock.sendall(msg)
+            print >> sys.stderr, "------------------1", "peer host and port", sock_info.sock.getpeername(), os.getpid()
             response = self.__receive_message_on_socket(1, rqst_id, sock_info)
         except socket.error, e:
             sock_info.close()
@@ -1121,6 +1124,7 @@ class MongoClient(common.BaseObject):
             try:
                 (request_id, data) = self.__check_bson_size(message)
                 sock_info.sock.sendall(data)
+                print >> sys.stderr, "------------------2", "peer host and port", sock_info.sock.getpeername(), os.getpid()
                 # Safe mode. We pack the message together with a lastError
                 # message and send both. We then get the response (to the
                 # lastError) and raise OperationFailure if it is an error
@@ -1180,6 +1184,7 @@ class MongoClient(common.BaseObject):
         (request_id, data) = self.__check_bson_size(message)
         try:
             sock_info.sock.sendall(data)
+            print >> sys.stderr, "------------------3", "peer host and port", sock_info.sock.getpeername(), os.getpid()
             return self.__receive_message_on_socket(1, request_id, sock_info)
         except:
             sock_info.close()
@@ -1358,6 +1363,7 @@ class MongoClient(common.BaseObject):
         try:
             try:
                 sock_info.sock.sendall(kill_cursors_msg)
+                print >> sys.stderr, "------------------4", "peer host and port", sock_info.sock.getpeername(), os.getpid()
             except:
                 sock_info.close()
                 raise

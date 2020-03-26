@@ -16,6 +16,8 @@
 
 import random
 import struct
+import sys
+import os
 import warnings
 
 import bson
@@ -93,6 +95,7 @@ def _unpack_response(response, cursor_id=None, as_class=dict,
       - `as_class` (optional): class to use for resulting documents
     """
     response_flag = struct.unpack("<i", response[:4])[0]
+    print >> sys.stderr, "------------------5", "cursor_id:", cursor_id, response_flag, os.getpid()
     if response_flag & 1:
         # Shouldn't get this response if we aren't doing a getMore
         assert cursor_id is not None

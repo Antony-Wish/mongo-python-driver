@@ -182,6 +182,8 @@ class Pool:
         self.ssl_cert_reqs = ssl_cert_reqs
         self.ssl_ca_certs = ssl_ca_certs
 
+        print >> sys.stderr, "------------------Pool init", "max_size:", max_size, os.getpid()
+
         if HAS_SSL and use_ssl and not ssl_cert_reqs:
             self.ssl_cert_reqs = ssl.CERT_NONE
 
@@ -212,6 +214,7 @@ class Pool:
         # the pool_id will definitely change, which is all we care about.
         self.pool_id += 1
         self.pid = os.getpid()
+        print >> sys.stderr, "------------------ Pool reset"
 
         # Allocate outside the lock. Triggering a GC while holding the lock
         # could run Cursor.__del__ and deadlock. See PYTHON-799.
@@ -265,6 +268,7 @@ class Pool:
                                 self.socket_keepalive)
                 sock.settimeout(self.conn_timeout)
                 sock.connect(sa)
+                print >> sys.stderr, "------------------Pool create_connection socket address", sa, host, port, "pid", os.getpid()
                 return sock
             except socket.error, e:
                 err = e
@@ -323,6 +327,10 @@ class Pool:
         if self.pid != os.getpid():
             self.reset()
 
+        socket_ips = []
+        for socket in self.sockets:
+            socket_ips.append(str(socket.sock.getpeername()[0]))
+        print >> sys.stderr, "------------------get_socket all sockets:", ", ".join(socket_ips), os.getpid()
         # Have we opened a socket for this request?
         req_state = self._get_request_state()
         if req_state not in (NO_SOCKET_YET, NO_REQUEST):
